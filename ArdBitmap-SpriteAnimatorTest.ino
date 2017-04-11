@@ -64,6 +64,8 @@ const unsigned char *CHAR_WALKING_ANIMATION[] = {
 SpriteAnimator *idleAnimation;
 SpriteAnimator *walkAnimation;
 
+Point pos;
+
 void setup() {
   arduboy.setFrameRate(60);
   arduboy.begin();
@@ -71,7 +73,9 @@ void setup() {
 
   idleAnimation = new SpriteAnimator(CHAR_IDLE_ANIMATION, 2);
   walkAnimation = new SpriteAnimator(CHAR_WALKING_ANIMATION, 4);
-  walkAnimation->millisPerSprite = 350;
+  walkAnimation->millisPerSprite = 200;
+
+  pos = {64,32};
 }
 
 void loop() {
@@ -84,17 +88,28 @@ void loop() {
 
   if (arduboy.pressed(LEFT_BUTTON)) {
     mirror = MIRROR_HORIZONTAL;
-    ardbitmap.drawCompressed(64, 32, walkAnimation->getCurrentSprite(), WHITE, ALIGN_CENTER, mirror);
+    pos.x--;
+    pos.x = max(0, pos.x);
+    ardbitmap.drawCompressed(pos.x, pos.y, walkAnimation->getCurrentSprite(), WHITE, ALIGN_CENTER, mirror);
   }
   else if(arduboy.pressed(RIGHT_BUTTON)){
+    pos.x++;
+    pos.x = min(128, pos.x);
     mirror = MIRROR_NONE;
-    ardbitmap.drawCompressed(64, 32, walkAnimation->getCurrentSprite(), WHITE, ALIGN_CENTER, mirror);
+    ardbitmap.drawCompressed(pos.x, pos.y, walkAnimation->getCurrentSprite(), WHITE, ALIGN_CENTER, mirror);
   }
-  else if (arduboy.pressed(UP_BUTTON) || arduboy.pressed(DOWN_BUTTON)) {
-    ardbitmap.drawCompressed(64, 32, walkAnimation->getCurrentSprite(), WHITE, ALIGN_CENTER, mirror);
+  else if (arduboy.pressed(UP_BUTTON)) {
+    pos.y--;
+    pos.y = max(0, pos.y);
+    ardbitmap.drawCompressed(pos.x, pos.y, walkAnimation->getCurrentSprite(), WHITE, ALIGN_CENTER, mirror);
+  }
+  else if (arduboy.pressed(DOWN_BUTTON)) {
+    pos.y++;
+    pos.y = min(64, pos.y);
+    ardbitmap.drawCompressed(pos.x, pos.y, walkAnimation->getCurrentSprite(), WHITE, ALIGN_CENTER, mirror);
   }
   else{
-    ardbitmap.drawCompressed(64, 32, idleAnimation->getCurrentSprite(), WHITE, ALIGN_CENTER, mirror);
+    ardbitmap.drawCompressed(pos.x, pos.y, idleAnimation->getCurrentSprite(), WHITE, ALIGN_CENTER, mirror);
   }
 
   arduboy.display();
